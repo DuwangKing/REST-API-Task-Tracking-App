@@ -34,4 +34,21 @@ app.MapPost("/api/todos", (TodoItem newTodo) =>{
     return Results.Created($"/api/todos/{todoWithId.Id}", todoWithId);
 });
 
+app.MapPut("/api/todos/{id}", (int id, TodoItem updatedTodo) => {
+
+    var existingTodo = todos.FirstOrDefault(t => t.Id == id);
+
+    if(existingTodo == null){
+        return Results.NotFound();
+    }
+
+    var updated = updatedTodo with { Id = id };
+
+    var index =  todos.IndexOf(existingTodo);
+
+    todos[index] = updated;
+
+    return Results.Ok(updated);
+});
+
 app.Run();
