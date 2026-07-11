@@ -51,4 +51,16 @@ app.MapPut("/api/todos/{id}", (int id, TodoItem updatedTodo) => {
     return Results.Ok(updated);
 });
 
+app.MapDelete("/api/todos/{id}", (int id) =>{
+    var todo = todos.FirstOrDefault(t => t.Id == id);
+
+    if(todo == null){
+        return Results.NotFound();
+    }
+
+    todos.Remove(todo);
+
+    return Results.NoContent();
+});
+
 app.Run();
