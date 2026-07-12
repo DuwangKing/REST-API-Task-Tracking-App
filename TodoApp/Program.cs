@@ -1,64 +1,59 @@
 using TodoApp.Models;
+using TodoApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<ITodoService, TodoService>();
+
 var app = builder.Build();
 
-var todos = new List<TodoItem>{
-    new TodoItem {Id = 1, Title = "To Learn C#", IsCompleted = true},
-    new TodoItem {Id = 2, Title = "To create TodoAPI", IsCompleted = false}
-};
+//Get all Todo's
+app.MapGet("api/todos", async (ITodoService todoService) =>{
 
-app.MapGet("/api/todos", () => todos);
-
-app.MapGet("/api/todos/{id}", (int id) => {
-
-    var foundTodo = todos.FirstOrDefault(t => t.Id == id);
-
-    if(foundTodo != null){
-        return Results.Ok(foundTodo);
-    }
-
-    else{
-        return Results.NotFound();
-    }
+    var todos = await todoService.GetAllAsync();
+    return todos;
 });
 
-app.MapPost("/api/todos", (TodoItem newTodo) =>{
+//Get Todo by Id
+app.MapGet("api/todos/{id}", async (int id, ITodoService todoService) =>{
 
-    var newId = todos.Count > 0 ? todos.Max(t => t.Id) + 1 : 1;
+    var todo = await todoService.GetByIdAsync(id);
 
-    var todoWithId = newTodo with { Id = newId };
-
-    todos.Add(todoWithId);
-
-    return Results.Created($"/api/todos/{todoWithId.Id}", todoWithId);
-});
-
-app.MapPut("/api/todos/{id}", (int id, TodoItem updatedTodo) => {
-
-    var existingTodo = todos.FirstOrDefault(t => t.Id == id);
-
-    if(existingTodo == null){
+    if(todo == null){
+        
         return Results.NotFound();
     }
+    return Results.Ok(todo);
+});
 
-    var updated = updatedTodo with { Id = id };
+//Create new Todo
+app.MapPost("api/todos", async (TodoItem newTodo, ITodoService todoService) => {
 
-    var index =  todos.IndexOf(existingTodo);
+    var createdTodo = await todoService.CreateAsync(newTodo);
+    return Results.Created($"/api/todos/{createdTodo.Id}", createdTodo);
+});
 
-    todos[index] = updated;
+//Update existing Todo
+app.MapPut("api/todos/{id}", async (int id, TodoItem updatedTodo, ITodoService todoService) =>{
 
+    var updated = await todoService.UpdateAsync(id, updatedTodo);
+
+    if(updated == null){
+        return Results.NotFound();
+    }
     return Results.Ok(updated);
 });
 
-app.MapDelete("/api/todos/{id}", (int id) =>{
-    var todo = todos.FirstOrDefault(t => t.Id == id);
 
-    if(todo == null){
+//Delete existing Todo
+
+app.MapDelete("/api/todos/{id}", async (int id, ITodoService todoService) => {
+
+    var deleted = await todoService.DeleteAsync(id);
+
+    if(!deleted){
         return Results.NotFound();
     }
-
-    todos.Remove(todo);
 
     return Results.NoContent();
 });
