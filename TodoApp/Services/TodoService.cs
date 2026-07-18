@@ -1,56 +1,59 @@
-namespace TodoApp.Services;
+using Microsoft.EntityFrameworkCore;
 using TodoApp.Models;
+using TodoApp.Data;
+
+namespace TodoApp.Services;
 
 public class TodoService : ITodoService{
     
-    private readonly List<TodoItem> _todos = new (){
+    private readonly AppDbContext _context;
 
-        new TodoItem { Id = 1, Title = "To Learn C#", IsCompleted = true },
-        new TodoItem { Id = 2, Title = "To create TodoAPI", IsCompleted = false }
-    };
+    public TodoService(AppDbContext context){
+        _context = context;
+    }
 
-    public Task<List<TodoItem>> GetAllAsync(){
+    public async Task<List<TodoItem>> GetAllAsync(){
         
-        return Task.FromResult(_todos);
+        return await _context.Todos.ToListAsync();
     }
 
-    public Task<TodoItem?> GetByIdAsync(int id){
+    public async Task<TodoItem?> GetByIdAsync(int id){
 
-        var todo = _todos.FirstOrDefault(t => t.Id == id);
-        return Task.FromResult(todo);
+        return await _context.Todos.FirstOrDefaultAsync(t => t.Id == id);
 
     }
 
-    public Task<TodoItem> CreateAsync(TodoItem todo){
+    public async Task<TodoItem> CreateAsync(TodoItem todo){
 
-        var newId = _todos.Count > 0 ? _todos.Max(t => t.Id) + 1 : 1;
-        var newTodo = todo with { Id = newId };
-        _todos.Add(newTodo);
-        return Task.FromResult(newTodo);
+        _context.Todos.Add(todo);
+        await _context.SaveChangesAsync();
+        return todo;
     }
 
-    public Task<TodoItem> UpdateAsync(int id, TodoItem updatedTodo){
+    public async Task<TodoItem> UpdateAsync(int id, TodoItem updatedTodo){
 
-        var existingTodo = _todos.FirstOrDefault(t => t.Id == id);
+        var existingTodo = _context.Todos.FirstOrDefault(t => t.Id == id);
         if(existingTodo == null){
             
-            return Task.FromResult<TodoItem>(null!);
+            return null!;
         }
 
-        var updated = updatedTodo with { Id = id};
-        var index = _todos.IndexOf(existingTodo);
-        _todos[index] = updated;
-        return Task.FromResult(updated);
+        existingTodo.Title = updatedTodo.Title;
+        existingTodo.IsCompleted = updatedTodo.IsCompleted;
+
+        await _context.SaveChangesAsync();
+        return existingTodo;
     }
 
-    public Task<bool> DeleteAsync(int id){
+    public async Task<bool> DeleteAsync(int id){
 
-        var todo = _todos.FirstOrDefault(t => t.Id == id);
+        var todo = await _context.Todos.FirstOrDefaultAsync(t => t.Id == id);
         if(todo == null){
 
-            return Task.FromResult(false);
+            return false;
         }
-        _todos.Remove(todo);
-        return Task.FromResult(true);
+        _context.Todos.Remove(todo);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }
