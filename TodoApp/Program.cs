@@ -1,7 +1,12 @@
 using TodoApp.Models;
 using TodoApp.Services;
 using TodoApp.Data;
+
 using Microsoft.EntityFrameworkCore;
+
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using TodoApp.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +19,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<ITodoService, TodoService>();
+
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<TodoItemValidator>();
 
 var app = builder.Build();
 
