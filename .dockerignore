@@ -1,0 +1,7 @@
+TodoApp.Tests/
+TodoApp/obj/
+TodoApp/bin/
+.git/
+.vs/
+.vscode/
+*.md
