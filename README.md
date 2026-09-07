@@ -30,11 +30,11 @@
 
 Самый простой способ — запустить всё одной командой. Требует установленного Docker и Docker Compose.
 
-# Клонируйте репозиторий
+## Клонируйте репозиторий
 git clone https://github.com/DuwangKing/REST-API-Task-Tracking-App.git
 cd REST-API-Task-Tracking-App
 
-# Запустите приложение и базу данных
+## Запустите приложение и базу данных
 docker compose up --build
 
 ## Архитектурные решения
