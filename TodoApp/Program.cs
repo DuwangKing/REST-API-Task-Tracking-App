@@ -32,14 +32,14 @@ if (app.Environment.IsDevelopment())
 }
 
 //Get all Todo's
-app.MapGet("api/todos", async (ITodoService todoService) =>{
+app.MapGet("/api/todos", async (ITodoService todoService) =>{
 
     var todos = await todoService.GetAllAsync();
     return todos;
 }).WithTags("Todos");
 
 //Get Todo by Id
-app.MapGet("api/todos/{id}", async (int id, ITodoService todoService) =>{
+app.MapGet("/api/todos/{id}", async (int id, ITodoService todoService) =>{
 
     var todo = await todoService.GetByIdAsync(id);
 
@@ -51,14 +51,14 @@ app.MapGet("api/todos/{id}", async (int id, ITodoService todoService) =>{
 }).WithTags("Todos");
 
 //Create new Todo
-app.MapPost("api/todos", async (TodoItem newTodo, ITodoService todoService) => {
+app.MapPost("/api/todos", async (TodoItem newTodo, ITodoService todoService) => {
 
     var createdTodo = await todoService.CreateAsync(newTodo);
     return Results.Created($"/api/todos/{createdTodo.Id}", createdTodo);
 }).WithTags("Todos");
 
 //Update existing Todo
-app.MapPut("api/todos/{id}", async (int id, TodoItem updatedTodo, ITodoService todoService) =>{
+app.MapPut("/api/todos/{id}", async (int id, TodoItem updatedTodo, ITodoService todoService) =>{
 
     var updated = await todoService.UpdateAsync(id, updatedTodo);
 

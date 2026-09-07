@@ -32,7 +32,7 @@ public class TodoService : ITodoService{
 
     public async Task<TodoItem> UpdateAsync(int id, TodoItem updatedTodo){
 
-        var existingTodo = _context.Todos.FirstOrDefault(t => t.Id == id);
+        var existingTodo = await _context.Todos.FirstOrDefaultAsync(t => t.Id == id);
         if(existingTodo == null){
             
             return null!;
